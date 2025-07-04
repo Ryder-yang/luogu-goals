@@ -223,16 +223,24 @@
 <body>
     <div class="container">
         <div class="header">
- 		 <h1 class="title handwritten-title">梦想清单</h1>
-
-		<style>
-		.handwritten-title {
-    		font-family: 'Ma Shan Zheng', cursive;
-    		color: #e74c3c;
-    		text-shadow: 3px 3px 0px #f39c12;
-    		transform: rotate(-5deg);
-		}
-</style>
+ 	    <h1 class="title inspire-title">登峰之路</h1>
+	    <style>
+            .inspire-title {
+                font-family: 'STXingkai', 'KaiTi', cursive;
+    		color: #8e44ad;
+	        text-shadow: 2px 2px 0px #ecf0f1;
+                position: relative;
+             }
+             .inspire-title:after {
+                 content: "";
+                 position: absolute;
+                 bottom: -10px;
+                 left: 0;
+                 width: 100%;
+                 height: 3px;
+                 background: linear-gradient(to right, #9b59b6, #3498db);
+              }
+              </style> 
             <div class="clock" id="clock">00:00:00</div>
         </div>
         
