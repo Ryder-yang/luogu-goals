@@ -1,1 +1,1 @@
-# luogu-goals
+# my-goals
