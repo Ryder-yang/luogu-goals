@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>洛谷目标清单</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            transition: background 0.5s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 4rem;
+            font-weight: bold;
+            color: #4a6baf;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+            letter-spacing: 5px;
+            font-family: '华文行楷', '楷体', cursive;
+            animation: fadeIn 2s ease;
+            margin: 0;
+        }
+        
+        .clock {
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .goal-list {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-buttons, .sort-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn, .sort-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background-color: #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background-color: #4a6baf;
+            color: white;
+        }
+        
+        .sort-btn.active {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .goal-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .goal-item:last-child {
+            border-bottom: none;
+        }
+        
+        .goal-content {
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+        
+        .goal-title {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .goal-meta {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #666;
+            gap: 15px;
+        }
+        
+        .goal-date {
+            font-size: 0.8rem;
+        }
+        
+        .goal-status {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .star-rating {
+            display: flex;
+        }
+        
+        .star {
+            color: #ffc107;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .star:hover {
+            transform: scale(1.2);
+        }
+        
+        .add-goal {
+            display: flex;
+            margin-top: 30px;
+        }
+        
+        #new-goal {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 1rem;
+        }
+        
+        #add-btn {
+            padding: 10px 20px;
+            background-color: #4a6baf;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        #add-btn:hover {
+            background-color: #3a5a9f;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #666;
+        }
+        
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .title {
+                font-size: 3rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .filter-buttons, .sort-options {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">洛谷</h1>
+            <div class="clock" id="clock">00:00:00</div>
+        </div>
+        
+        <div class="goal-list">
+            <h2>我的目标清单</h2>
+            
+            <div class="controls">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="completed">已完成</button>
+                    <button class="filter-btn" data-filter="pending">未完成</button>
+                </div>
+                
+                <div class="sort-options">
+                    <button class="sort-btn" data-sort="rating-desc">等级 ▼</button>
+                    <button class="sort-btn" data-sort="rating-asc">等级 ▲</button>
+                    <button class="sort-btn" data-sort="date-desc">最新</button>
+                    <button class="sort-btn" data-sort="date-asc">最早</button>
+                </div>
+            </div>
+            
+            <div id="goals-container">
+                <!-- 目标将在这里动态添加 -->
+                <div class="empty-state">暂无目标，请添加您的第一个目标</div>
+            </div>
+            
+            <div class="add-goal">
+                <input type="text" id="new-goal" placeholder="输入新的目标...">
+                <button id="add-btn">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const goalsContainer = document.getElementById('goals-container');
+            const newGoalInput = document.getElementById('new-goal');
+            const addBtn = document.getElementById('add-btn');
+            const clockElement = document.getElementById('clock');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const sortButtons = document.querySelectorAll('.sort-btn');
+            
+            // 从本地存储加载目标
+            let goals = JSON.parse(localStorage.getItem('goals')) || [];
+            
+            // 当前筛选和排序状态
+            let currentFilter = 'all';
+            let currentSort = 'date-desc';
+            
+            // 更新时钟
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+            
+            // 初始化时钟并每秒更新
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // 渲染目标列表
+            function renderGoals() {
+                // 应用筛选
+                let filteredGoals = goals;
+                if (currentFilter === 'completed') {
+                    filteredGoals = goals.filter(goal => goal.completed);
+                } else if (currentFilter === 'pending') {
+                    filteredGoals = goals.filter(goal => !goal.completed);
+                }
+                
+                // 应用排序
+                filteredGoals = [...filteredGoals].sort((a, b) => {
+                    if (currentSort === 'rating-desc') {
+                        return b.rating - a.rating;
+                    } else if (currentSort === 'rating-asc') {
+                        return a.rating - b.rating;
+                    } else if (currentSort === 'date-desc') {
+                        return new Date(b.date) - new Date(a.date);
+                    } else if (currentSort === 'date-asc') {
+                        return new Date(a.date) - new Date(b.date);
+                    }
+                    return 0;
+                });
+                
+                if (filteredGoals.length === 0) {
+                    let message = '暂无目标';
+                    if (currentFilter === 'completed') {
+                        message = '暂无已完成的目标';
+                    } else if (currentFilter === 'pending') {
+                        message = '暂无未完成的目标';
+                    }
+                    goalsContainer.innerHTML = `<div class="empty-state">${message}，请添加您的目标</div>`;
+                    return;
+                }
+                
+                goalsContainer.innerHTML = '';
+                
+                filteredGoals.forEach((goal, index) => {
+                    const originalIndex = goals.findIndex(g => g.id === goal.id);
+                    
+                    const goalItem = document.createElement('div');
+                    goalItem.className = 'goal-item';
+                    
+                    const statusBtn = document.createElement('button');
+                    statusBtn.className = `status-btn ${goal.completed ? 'completed' : 'pending'}`;
+                    statusBtn.textContent = goal.completed ? '已完成' : '未完成';
+                    statusBtn.onclick = () => toggleStatus(originalIndex);
+                    
+                    const goalContent = document.createElement('div');
+                    goalContent.className = 'goal-content';
+                    
+                    const goalTitle = document.createElement('div');
+                    goalTitle.className = 'goal-title';
+                    goalTitle.textContent = goal.text;
+                    
+                    const goalMeta = document.createElement('div');
+                    goalMeta.className = 'goal-meta';
+                    
+                    const starRating = document.createElement('div');
+                    starRating.className = 'star-rating';
+                    
+                    // 创建5颗星
+                    for (let i = 1; i <= 5; i++) {
+                        const star = document.createElement('span');
+                        star.className = 'star';
+                        star.innerHTML = i <= goal.rating ? '★' : '☆';
+                        star.onclick = () => rateGoal(originalIndex, i);
+                        starRating.appendChild(star);
+                    }
+                    
+                    const goalDate = document.createElement('div');
+                    goalDate.className = 'goal-date';
+                    goalDate.textContent = formatDate(goal.date);
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'status-btn';
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.style.backgroundColor = '#f8d7da';
+                    deleteBtn.style.color = '#721c24';
+                    deleteBtn.onclick = () => deleteGoal(originalIndex);
+                    
+                    goalMeta.appendChild(starRating);
+                    goalMeta.appendChild(goalDate);
+                    
+                    goalContent.appendChild(goalTitle);
+                    goalContent.appendChild(goalMeta);
+                    
+                    goalItem.appendChild(statusBtn);
+                    goalItem.appendChild(goalContent);
+                    goalItem.appendChild(deleteBtn);
+                    
+                    goalsContainer.appendChild(goalItem);
+                });
+            }
+            
+            // 格式化日期
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            }
+            
+            // 切换目标状态
+            function toggleStatus(index) {
+                goals[index].completed = !goals[index].completed;
+                saveGoals();
+                renderGoals();
+            }
+            
+            // 评分目标
+            function rateGoal(index, rating) {
+                goals[index].rating = rating;
+                saveGoals();
+                renderGoals();
+            }
+            
+            // 删除目标
+            function deleteGoal(index) {
+                if (confirm('确定要删除这个目标吗？')) {
+                    goals.splice(index, 1);
+                    saveGoals();
+                    renderGoals();
+                }
+            }
+            
+            // 保存目标到本地存储
+            function saveGoals() {
+                localStorage.setItem('goals', JSON.stringify(goals));
+            }
+            
+            // 添加新目标
+            addBtn.addEventListener('click', function() {
+                const text = newGoalInput.value.trim();
+                if (text) {
+                    goals.push({
+                        id: Date.now(), // 使用时间戳作为唯一ID
+                        text: text,
+                        completed: false,
+                        rating: 3, // 默认3星
+                        date: new Date().toISOString() // 记录创建时间
+                    });
+                    saveGoals();
+                    newGoalInput.value = '';
+                    renderGoals();
+                }
+            });
+            
+            // 按回车键添加目标
+            newGoalInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addBtn.click();
+                }
+            });
+            
+            // 筛选按钮点击事件
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    renderGoals();
+                });
+            });
+            
+            // 排序按钮点击事件
+            sortButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    sortButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSort = this.dataset.sort;
+                    renderGoals();
+                });
+            });
+            
+            // 初始渲染
+            renderGoals();
+            
+            // 背景渐变动画
+            const colors = [
+                'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                'linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%)',
+                'linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%)',
+                'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)',
+                'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)'
+            ];
+            
+            let currentColor = 0;
+            setInterval(() => {
+                currentColor = (currentColor + 1) % colors.length;
+                document.body.style.background = colors[currentColor];
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
